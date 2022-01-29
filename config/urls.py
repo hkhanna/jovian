@@ -20,6 +20,6 @@ from opps.views import MatchAPIView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("matches/", MatchAPIView.as_view()),
+    path("api/matches/", MatchAPIView.as_view()),
     path("api-auth/", include("rest_framework.urls")),
 ]

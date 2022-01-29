@@ -1,6 +1,6 @@
 # jovian
 
-You can either run this locally or check out the <a href="http://jovian.herokuapp.com/">Live Demo</a>.
+You can either run this locally or check out the <a href="http://jovian.herokuapp.com/api/matches/">Live Demo</a>.
 
 ## Local Development
 
@@ -8,7 +8,6 @@ You can either run this locally or check out the <a href="http://jovian.herokuap
 
 - Docker (for postgres).
 - Python 3.8+
-- `libtidy-dev` (e.g., `apt install libtidy-dev`)
 
 ### Local Installation
 
@@ -22,26 +21,21 @@ You can either run this locally or check out the <a href="http://jovian.herokuap
 
 ### Testing
 
+- I avoid writing substantial code without at least _some_ tests. In this case, I only wrote [one](https://github.com/hkhanna/jovian/blob/main/opps/tests.py) just as a proof of concept, but if this were actually going to be used, I'd write more.
 - `make check` will run all tests. You can also directly run `py.test` if you have the virtualenv activated.
 
 # Deployment
 
 - Hosted on Heroku
 - The database is the PostgreSQL Heroku add-on which has automated nightly backups.
-- Backend logging to Papertrail via Heroku.
-  - Papertrail sends a pushover anytime the the logs match `at=ERROR OR at=CRITICAL`. It should send the email a maximum of once a day.
-  - You cannot just look for `error` because they will match admin filtering for errors. You cannot look for `error -at=INFO` because something is emitting a log in Heroku with every request that doesn't include the `at=LEVEL`. It could be gunicorn, but after spending half a day on it, I've given up.
 
 ## How to Deploy
 
-- Push to `origin/main` and it will automatically trigger a deploy to Heroku (after CI passes).
+- Push to `origin/main` and it will automatically trigger a deploy to Heroku.
 
 ## Production Environment Variables
 
 - `DJANGO_SETTINGS_MODULE=config.settings.production`
 - `DJANGO_SECRET_KEY=<random key>`
   - You can generate this random key with something like `openssl rand -base64 64`.
-- `LOGLEVEL=INFO`
-  - Without this, it will use the default of `DEBUG`.
-- `POSTMARK_API_KEY=<postmark key>`
 - `DATABASE_URL` is set by Heroku.
