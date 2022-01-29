@@ -46,7 +46,6 @@ class Command(BaseCommand):
 
         User.objects.bulk_create(users)
         InterestedIn.objects.bulk_create(interests)
-        print("users.json ingested")
 
         # Load opportunities.json
         opps_json = str(settings.BASE_DIR / "opps/json_data/opportunities.json")
@@ -69,4 +68,3 @@ class Command(BaseCommand):
 
         Organization.objects.bulk_create(orgs)
         Role.objects.bulk_create(roles)
-        print("opportunities.json ingested")

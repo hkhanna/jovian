@@ -42,7 +42,3 @@ db:
 	sleep 3
 	@echo "Running migrations"
 	source .venv/bin/activate && python manage.py migrate
-
-seed: db
-	@echo "Seeding database"
-	source .venv/bin/activate && python manage.py seed_data
