@@ -7,6 +7,7 @@
 - how I did edge case analysis
 - admin/ user account
 - API endpoint with pagination etc
+- Mention auth and how it's out of scope but would make sense here
 
 ## Local Development
 

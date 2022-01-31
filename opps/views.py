@@ -1,5 +1,6 @@
 from collections import defaultdict
 from email.policy import default
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import serializers
@@ -27,11 +28,9 @@ class RoleSerializer(serializers.Serializer):
 
 
 class MatchAPIView(APIView):
-    # TODO: deal with auth somehow
-    # TODO: write one test
+    paginator = LimitOffsetPagination()
 
     def get(self, request):
-        user_qs = User.objects.prefetch_related("interested_in").all()
         role_qs = Role.objects.select_related("organization").all()
 
         # Hash table reduces the time complexity of what would be O(n^2) in the naive solution.
@@ -44,6 +43,8 @@ class MatchAPIView(APIView):
             for name in rolename_variations:
                 roles[name].append(serialized)
 
+        user_qs = User.objects.prefetch_related("interested_in")
+        user_qs = self.paginator.paginate_queryset(user_qs, request, view=self)
         data = []
         for user in user_qs:
             serialized = UserSerializer(user).data
@@ -53,8 +54,8 @@ class MatchAPIView(APIView):
             serialized["matches"] = matches
             data.append(serialized)
 
-        return Response(data)
+        return self.paginator.get_paginated_response(data)
 
     @staticmethod
     def _get_variations(name):
-        return name
+        return [name]
