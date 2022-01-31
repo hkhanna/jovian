@@ -1,6 +1,12 @@
 # jovian
 
-You can either run this locally or check out the <a href="http://jovian.herokuapp.com/api/matches/">Live Demo</a>.
+## Check out the <a href="http://jovian.herokuapp.com/api/matches/">Live Demo</a>.
+
+## TODO - Things to describe
+
+- how I did edge case analysis
+- admin/ user account
+- API endpoint with pagination etc
 
 ## Local Development
 

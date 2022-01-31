@@ -1,13 +1,9 @@
+from collections import defaultdict
+from email.policy import default
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import serializers
 from .models import User, InterestedIn, Organization, Role
-
-
-class InterestedInSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = InterestedIn
-        fields = "__all__"
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -20,15 +16,45 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "first_name", "last_name", "email", "interested_in"]
 
 
+class RoleSerializer(serializers.Serializer):
+    role_name = serializers.CharField(source="name", read_only=True)
+    organization_name = serializers.CharField(
+        source="organization.name", read_only=True
+    )
+    organization_email = serializers.EmailField(
+        source="organization.email", read_only=True
+    )
+
+
 class MatchAPIView(APIView):
     # TODO: deal with auth somehow
+    # TODO: write one test
 
     def get(self, request):
-        users = User.objects.all()
-        data = []
-        for user in users:
-            serialized = UserSerializer(user).data
+        user_qs = User.objects.prefetch_related("interested_in").all()
+        role_qs = Role.objects.select_related("organization").all()
 
+        # Hash table reduces the time complexity of what would be O(n^2) in the naive solution.
+        # Should be O(n) now.
+        roles = defaultdict(list)
+        for role in role_qs:
+            serialized = RoleSerializer(role).data
+
+            rolename_variations = self._get_variations(role.name)
+            for name in rolename_variations:
+                roles[name].append(serialized)
+
+        data = []
+        for user in user_qs:
+            serialized = UserSerializer(user).data
+            matches = []
+            for i in serialized["interested_in"]:
+                matches.append(roles[i])
+            serialized["matches"] = matches
             data.append(serialized)
 
         return Response(data)
+
+    @staticmethod
+    def _get_variations(name):
+        return name
