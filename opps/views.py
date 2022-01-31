@@ -1,10 +1,8 @@
 from collections import defaultdict
-from email.policy import default
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import serializers
-from .models import User, InterestedIn, Organization, Role
+from .models import User, Role
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -44,13 +42,25 @@ class MatchAPIView(APIView):
                 roles[name].append(serialized)
 
         user_qs = User.objects.prefetch_related("interested_in")
+
+        # Search user interests
+        search = request.GET.get("search")
+        if search:
+            user_qs = user_qs.filter(interested_in__title__icontains=search)
+
+        # Pagination
         user_qs = self.paginator.paginate_queryset(user_qs, request, view=self)
+
         data = []
         for user in user_qs:
             serialized = UserSerializer(user).data
             matches = []
             for i in serialized["interested_in"]:
-                matches.append(roles[i])
+                # If there was a search, remove all non-matching interests.
+                if search and search.lower() in i.lower():
+                    matches.append(roles[i])
+                elif not search:
+                    matches.append(roles[i])
             serialized["matches"] = matches
             data.append(serialized)
 
