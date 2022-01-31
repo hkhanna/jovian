@@ -6,9 +6,6 @@ class User(models.Model):
     first_name = models.CharField(max_length=255, null=False, blank=True)
     last_name = models.CharField(max_length=255, null=False, blank=True)
     email = models.EmailField(max_length=255, null=False, blank=True)
-    # NB: null=F, B=T because we don't want two represnetations of "no" email
-    # are they unique?
-    # README ignore everything in base
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}".strip()

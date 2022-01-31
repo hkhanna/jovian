@@ -44,17 +44,3 @@ class Command(BaseCommand):
         #     "Geologist I",
         #     "Budget/Accounting Analyst II",
         # }
-
-        # Interesting that there's differences that would be solved by stemming. Maybe lemmetization, but
-        # unclear whether that would work. Not enough time to experiment.
-        # Edge cases: Software Engineer <-> Developer <-> Programmer
-        # Edge case: Engineer could be any kind of engineer, so we only match with other bare Engineer.
-        # Edge case: Roman numeral
-        # Edge case: Roman numeral: None specified -> Any
-        # Edge case: split slashes
-        # Edge case: Assistant <-> Analyst
-        # Stretch -- more robust: Vectorize all the words in the corpus and calculate the cosine similarity or L2 normalized distance to each other.
-        #   To be overinclusive, probably would compare each word individually and report any thing that passed the cutoff.
-        #   Stricter approach would be to compare every word and report where more than X% passed the cutoff.
-        #   Could also get fancy and use more modern "sentence" comparison techniques like WMD (word mover distance).
-        #   Could train my own embeddings based on past matches. Lots of directions we could go.
