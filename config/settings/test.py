@@ -14,10 +14,5 @@ DATABASES = {
 }
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 
-# Prevent log spew during testing
-LOGLEVEL = env("LOGLEVEL", default="CRITICAL")
-logging.getLogger("django").setLevel(LOGLEVEL)
-logging.getLogger("").setLevel(LOGLEVEL)
-
 # Reproducable randomness for tests
 factory.random.reseed_random(42)

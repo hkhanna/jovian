@@ -1,3 +1,4 @@
+import re
 from collections import defaultdict
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.views import APIView
@@ -68,4 +69,59 @@ class MatchAPIView(APIView):
 
     @staticmethod
     def _get_variations(name):
-        return [name]
+        """Deal with edge cases by reporting other possible names"""
+
+        # Exact match
+        variants = [name]
+
+        # Edge case: Software Engineer <-> Developer <-> Programmer
+        name_derived = re.sub("Software Engineer", "Developer", name)
+        variants.append(name_derived)
+        name_derived = re.sub("Software Engineer", "Developer", name)
+        variants.append(name_derived)
+
+        name_derived = re.sub("Developer", "Software Engineer", name)
+        variants.append(name_derived)
+        name_derived = re.sub("Developer", "Programmer", name)
+        variants.append(name_derived)
+
+        name_derived = re.sub("Programmer", "Software Engineer", name)
+        variants.append(name_derived)
+        name_derived = re.sub("Programmer", "Developer", name)
+
+        # Edge case: Allow some squishiness on the level (+/- 1 level)
+        tokens = name.split()
+        numeral = tokens[-1]
+        if numeral in ROMAN_TO_ARABIC.keys():
+            arabic = ROMAN_TO_ARABIC[numeral]
+            lower = arabic - 1
+            higher = arabic + 1
+            if lower in ARABIC_TO_ROMAN.keys():
+                tokens[-1] = ARABIC_TO_ROMAN[lower]
+                name_derived = " ".join(tokens)
+                variants.append(name_derived)
+            if higher in ARABIC_TO_ROMAN.keys():
+                tokens[-1] = ARABIC_TO_ROMAN[higher]
+                name_derived = " ".join(tokens)
+                variants.append(name_derived)
+
+        # Possible improvements:
+        #  - Combine all the variants with each other (although this could quickly get unmanagable depending on the number of edge cases we handle)
+        #  - Compare on individual words to catch things like VP Accounting -> Accounting Analyst V
+
+        return set(variants)
+
+
+ROMAN_TO_ARABIC = {
+    "I": 1,
+    "II": 2,
+    "III": 3,
+    "IV": 4,
+    "V": 5,
+    "VI": 6,
+    "VII": 7,
+    "VIII": 8,
+    "IX": 9,
+    "X": 10,
+}
+ARABIC_TO_ROMAN = {v: k for k, v in ROMAN_TO_ARABIC.items()}
